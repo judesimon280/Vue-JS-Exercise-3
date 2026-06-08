@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Property Finder</title>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#f4f6f9;
+}
+
+header{
+    background:#1e3a8a;
+    color:white;
+    padding:20px;
+    text-align:center;
+}
+
+.controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    justify-content:center;
+    padding:20px;
+}
+
+input,select{
+    padding:10px;
+    border:1px solid #ccc;
+    border-radius:8px;
+    min-width:250px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:20px;
+    padding:20px;
+}
+
+.card{
+    background:white;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    position:relative;
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:translateY(-5px);
+}
+
+.card img{
+    width:100%;
+    height:200px;
+    object-fit:cover;
+}
+
+.content{
+    padding:15px;
+}
+
+.price{
+    color:#16a34a;
+    font-size:22px;
+    font-weight:bold;
+    margin:10px 0;
+}
+
+.type{
+    display:inline-block;
+    background:#dbeafe;
+    color:#1e40af;
+    padding:5px 10px;
+    border-radius:20px;
+    font-size:12px;
+}
+
+.badge{
+    position:absolute;
+    top:10px;
+    left:-30px;
+    background:red;
+    color:white;
+    padding:8px 40px;
+    transform:rotate(-45deg);
+    font-size:12px;
+    font-weight:bold;
+}
+
+.bookmark{
+    position:absolute;
+    top:10px;
+    right:10px;
+    background:white;
+    border:none;
+    font-size:24px;
+    cursor:pointer;
+    border-radius:50%;
+    width:40px;
+    height:40px;
+}
+
+.bookmarked{
+    color:gold;
+}
+
+.footer{
+    padding:10px 15px 15px;
+}
+
+.count{
+    margin-top:10px;
+    font-size:14px;
+}
+
+@media(max-width:600px){
+    .controls{
+        flex-direction:column;
+        align-items:center;
+    }
+
+    input,select{
+        width:90%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+<header>
+    <h1>🏡 Dream Property Finder</h1>
+    <p class="count">Total Properties: {{ filteredProperties.length }}</p>
+</header>
+
+<div class="controls">
+    <input
+        v-model="search"
+        type="text"
+        placeholder="Search by title or location..."
+    >
+
+    <select v-model="sortOrder">
+        <option value="low">Price: Low to High</option>
+        <option value="high">Price: High to Low</option>
+    </select>
+</div>
+
+<div class="grid">
+
+    <div class="card" v-for="property in filteredProperties" :key="property.id">
+
+        <div v-if="!property.available" class="badge">
+            Not Available
+        </div>
+
+        <button
+            class="bookmark"
+            @click="toggleFavourite(property)"
+            :class="{ bookmarked: property.favourite }"
+        >
+            ★
+        </button>
+
+        <img :src="property.image" :alt="property.title">
+
+        <div class="content">
+            <h2>{{ property.title }}</h2>
+            <p>📍 {{ property.location }}</p>
+
+            <div class="price">
+                R{{ property.price.toLocaleString() }}
+            </div>
+
+            <span class="type">
+                {{ property.type }}
+            </span>
+        </div>
+
+        <div class="footer">
+            <strong v-if="property.favourite">
+                ⭐ Favourite Property
+            </strong>
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+<script>
+const { createApp } = Vue;
+
+createApp({
+    data() {
+        return {
+            search: "",
+            sortOrder: "low",
+
+            properties: [
+                {
+                    id: 1,
+                    title: "Modern Family Home",
+                    location: "Cape Town",
+                    price: 2500000,
+                    type: "House",
+                    available: true,
+                    favourite: false,
+                    image: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800"
+                },
+                {
+                    id: 2,
+                    title: "Luxury Penthouse",
+                    location: "Johannesburg",
+                    price: 4200000,
+                    type: "Apartment",
+                    available: false,
+                    favourite: false,
+                    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?w=800"
+                },
+                {
+                    id: 3,
+                    title: "Beachfront Villa",
+                    location: "Durban",
+                    price: 5800000,
+                    type: "Villa",
+                    available: true,
+                    favourite: false,
+                    image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800"
+                },
+                {
+                    id: 4,
+                    title: "City Apartment",
+                    location: "Pretoria",
+                    price: 1800000,
+                    type: "Apartment",
+                    available: true,
+                    favourite: false,
+                    image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800"
+                },
+                {
+                    id: 5,
+                    title: "Country Cottage",
+                    location: "Stellenbosch",
+                    price: 1450000,
+                    type: "Cottage",
+                    available: false,
+                    favourite: false,
+                    image: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800"
+                },
+                {
+                    id: 6,
+                    title: "Executive Estate",
+                    location: "Sandton",
+                    price: 6900000,
+                    type: "House",
+                    available: true,
+                    favourite: false,
+                    image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800"
+                }
+            ]
+        };
+    },
+
+    computed: {
+        filteredProperties() {
+
+            let results = this.properties.filter(property =>
+                property.title.toLowerCase().includes(this.search.toLowerCase()) ||
+                property.location.toLowerCase().includes(this.search.toLowerCase())
+            );
+
+            results.sort((a, b) => {
+                return this.sortOrder === "low"
+                    ? a.price - b.price
+                    : b.price - a.price;
+            });
+
+            return results;
+        }
+    },
+
+    methods: {
+        toggleFavourite(property) {
+            property.favourite = !property.favourite;
+        }
+    }
+}).mount("#app");
+</script>
+
+</body>
+</html>
